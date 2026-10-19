@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "dev:api": "pnpm --filter @africair/api dev",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && node scripts/write-version.mjs",
     "build:api": "pnpm --filter @africair/api build",
     "check": "tsc -b && pnpm --filter @africair/api exec tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
