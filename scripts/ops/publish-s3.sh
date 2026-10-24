@@ -37,8 +37,8 @@ aws s3 sync "$dist_dir/" "$s3_uri/" \
   --exclude 'index.html' \
   --exclude 'version.json' \
   --cache-control "$revalidate_cache"
-aws s3 cp "$dist_dir/version.json" "$s3_uri/version.json" --cache-control 'no-cache'
 aws s3 cp "$dist_dir/index.html" "$s3_uri/index.html" --cache-control 'no-cache'
+aws s3 cp "$dist_dir/version.json" "$s3_uri/version.json" --cache-control 'no-cache'
 
 # Keep the previous release's hashed assets until the new HTML is live.
 aws s3 sync "$dist_dir/assets/" "$s3_uri/assets/" --delete --cache-control "$immutable_cache"
