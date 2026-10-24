@@ -9,11 +9,15 @@ Usage: sudo ./scripts/ops/bootstrap.sh
 
 Prepare a fresh Ubuntu 24.04 host for AfricAir:
   - install Node.js 22 LTS, Corepack, nginx, git, ufw, jq and curl;
+  - install AWS CLI and load the CloudFront origin token from Parameter Store;
   - create the locked-down africair system user and release directories;
   - install nginx, logrotate and health-monitoring systemd configuration.
 
 Run this on a new server, or inspect the script before applying it to an
-existing host. It configures UFW to allow OpenSSH, HTTP and HTTPS only.
+existing host. The EC2 instance profile must be allowed to read
+/africair/demo/origin-header. It configures UFW to allow OpenSSH, HTTP and
+HTTPS; the EC2 security group must keep SSH closed and restrict HTTP to
+CloudFront origin-facing addresses.
 EOF
 }
 
@@ -33,7 +37,7 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 repo_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd -P)
-base_packages=(ca-certificates curl gnupg git nginx ufw jq postgresql)
+base_packages=(ca-certificates curl gnupg git nginx ufw jq awscli postgresql)
 missing_packages=()
 
 for package in "${base_packages[@]}"; do
@@ -107,6 +111,30 @@ install_if_changed() {
 }
 
 config_changed=0
+origin_auth_token=$(aws ssm get-parameter \
+  --name /africair/demo/origin-header \
+  --with-decryption \
+  --region us-east-1 \
+  --query Parameter.Value \
+  --output text)
+if [[ ! $origin_auth_token =~ ^[A-Za-z0-9_-]{43}$ ]]; then
+  printf 'bootstrap: origin authentication parameter is missing or invalid\n' >&2
+  exit 1
+fi
+install -d -o root -g root -m 0755 /etc/nginx/snippets
+origin_auth_config=/etc/nginx/snippets/africair-origin-auth.conf
+origin_auth_tmp=$(mktemp /etc/nginx/snippets/africair-origin-auth.XXXXXX)
+trap 'rm -f -- "$origin_auth_tmp"' EXIT
+printf 'if ($http_x_africair_origin_auth != "%s") { return 403; }\n' \
+  "$origin_auth_token" >"$origin_auth_tmp"
+unset origin_auth_token
+if [[ ! -f $origin_auth_config ]] || ! cmp -s "$origin_auth_tmp" "$origin_auth_config"; then
+  install -o root -g root -m 0600 "$origin_auth_tmp" "$origin_auth_config"
+  config_changed=1
+fi
+rm -f -- "$origin_auth_tmp"
+trap - EXIT
+
 install_if_changed "$repo_root/deploy/nginx/africair.conf" /etc/nginx/sites-available/africair 0644 root root
 install_if_changed "$repo_root/deploy/nginx/security-headers.conf" /etc/nginx/snippets/africair-security-headers.conf 0644 root root
 install_if_changed "$repo_root/deploy/logrotate/africair" /etc/logrotate.d/africair 0644 root root

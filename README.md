@@ -110,6 +110,25 @@ scripts/build-airports.mjs  # Regenerates airports.json: `pnpm data:airports`
 e2e/booking.spec.ts         # End-to-end tests
 ```
 
+## AWS demo hosting
+
+The demo topology serves the frontend from a private S3 bucket through
+CloudFront and routes `/api/*` to the EC2 API without caching. The browser-to-
+CloudFront connection uses HTTPS; the CloudFront-to-EC2 origin connection uses
+HTTP because this setup has no custom domain. The EC2 security group accepts
+HTTP only from CloudFront origin-facing addresses, and Nginx also requires a
+per-distribution secret header fetched from SSM Parameter Store.
+
+The HTTP origin hop is not encrypted. Do not use real personal booking data or
+production admin credentials with this demo. A production deployment needs a
+custom domain and a valid TLS certificate on the EC2 origin.
+
+Render a private distribution config with
+`scripts/ops/render-cloudfront-config.sh <api-origin-domain> <output-file>`.
+The generated file contains the origin secret. Unix systems use mode `0600`;
+Windows restricts access to the current user, SYSTEM, and local administrators.
+Keep the file outside the repository and remove it after use.
+
 ## DevOps bootcamp projects
 
 AfricAir doubles as the sample application for a five-part DevOps bootcamp. The API's environment variables and secrets **visibly change the site** (banner, announcement, maintenance mode, promo codes, admin page, database storage), and `/#/status` shows what each deployment received, so students can see whether their configuration and secret delivery actually work. Each project has its own brief, acceptance checks, knowledge questions and grading rubric:
