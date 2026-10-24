@@ -37,7 +37,7 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 repo_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd -P)
-base_packages=(ca-certificates curl gnupg git nginx ufw jq awscli postgresql)
+base_packages=(ca-certificates curl gnupg git nginx ufw jq unzip postgresql)
 missing_packages=()
 
 for package in "${base_packages[@]}"; do
@@ -50,6 +50,10 @@ node_major=0
 if ((${#missing_packages[@]} > 0)); then
   apt-get update
   apt-get install -y "${missing_packages[@]}"
+fi
+
+if ! command -v aws >/dev/null 2>&1; then
+  curl -fsSL https://awscli.amazonaws.com/v2/install.sh | bash -s -- --system
 fi
 
 if command -v node >/dev/null 2>&1; then
