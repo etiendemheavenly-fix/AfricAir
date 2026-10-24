@@ -1,19 +1,48 @@
 {
-  "CallerReference": "africair-static-204685625557-20261016-cf1",
-  "Comment": "AfricAir private S3 static site",
+  "CallerReference": "africair-live-bb07152365ee-20261024125936",
+  "Comment": "AfricAir demo private S3 site with EC2 API proxy",
   "Enabled": true,
   "IsIPV6Enabled": true,
   "DefaultRootObject": "index.html",
   "PriceClass": "PriceClass_200",
   "Origins": {
-    "Quantity": 1,
+    "Quantity": 2,
     "Items": [
       {
         "Id": "AfricAirS3Origin",
-        "DomainName": "africair-static-204685625557.s3.us-east-1.amazonaws.com",
-        "OriginAccessControlId": "E39G1LF9I8LWQZ",
+        "DomainName": "africair-live-web-bb07152365ee.s3.us-east-1.amazonaws.com",
+        "OriginAccessControlId": "E29CHGQXON8OVL",
         "S3OriginConfig": {
           "OriginAccessIdentity": ""
+        },
+        "ConnectionAttempts": 3,
+        "ConnectionTimeout": 10
+      },
+      {
+        "Id": "AfricAirApiOrigin",
+        "DomainName": "ec2-204-236-236-216.compute-1.amazonaws.com",
+        "OriginPath": "",
+        "CustomHeaders": {
+          "Quantity": 1,
+          "Items": [
+            {
+              "HeaderName": "X-AfricAir-Origin-Auth",
+              "HeaderValue": "RENDER_FROM_SSM_PARAMETER"
+            }
+          ]
+        },
+        "CustomOriginConfig": {
+          "HTTPPort": 80,
+          "HTTPSPort": 443,
+          "OriginProtocolPolicy": "http-only",
+          "OriginSslProtocols": {
+            "Quantity": 1,
+            "Items": [
+              "TLSv1.2"
+            ]
+          },
+          "OriginReadTimeout": 30,
+          "OriginKeepaliveTimeout": 5
         },
         "ConnectionAttempts": 3,
         "ConnectionTimeout": 10
@@ -69,7 +98,56 @@
     "MinTTL": 0,
     "DefaultTTL": 86400,
     "MaxTTL": 31536000,
-    "ResponseHeadersPolicyId": "fd6c21ec-466d-404d-97b9-ee4ac8d706e5"
+    "ResponseHeadersPolicyId": "1baa9a24-99f6-473b-90b5-7a58e93f813f"
+  },
+  "CacheBehaviors": {
+    "Quantity": 1,
+    "Items": [
+      {
+        "PathPattern": "/api/*",
+        "TargetOriginId": "AfricAirApiOrigin",
+        "TrustedSigners": {
+          "Enabled": false,
+          "Quantity": 0
+        },
+        "TrustedKeyGroups": {
+          "Enabled": false,
+          "Quantity": 0
+        },
+        "ViewerProtocolPolicy": "redirect-to-https",
+        "AllowedMethods": {
+          "Quantity": 7,
+          "Items": [
+            "HEAD",
+            "DELETE",
+            "POST",
+            "GET",
+            "OPTIONS",
+            "PUT",
+            "PATCH"
+          ],
+          "CachedMethods": {
+            "Quantity": 2,
+            "Items": [
+              "GET",
+              "HEAD"
+            ]
+          }
+        },
+        "SmoothStreaming": false,
+        "Compress": true,
+        "LambdaFunctionAssociations": {
+          "Quantity": 0
+        },
+        "FunctionAssociations": {
+          "Quantity": 0
+        },
+        "FieldLevelEncryptionId": "",
+        "CachePolicyId": "4135ea2d-6df8-44a3-9df3-4b5a84be39ad",
+        "OriginRequestPolicyId": "b689b0a8-53d0-40ab-baf2-68738e2966ac",
+        "ResponseHeadersPolicyId": "1baa9a24-99f6-473b-90b5-7a58e93f813f"
+      }
+    ]
   },
   "Restrictions": {
     "GeoRestriction": {

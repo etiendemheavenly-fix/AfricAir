@@ -1,5 +1,5 @@
 {
-  "Name": "AfricAirStaticSecurityHeaders",
+  "Name": "AfricAirSecurityHeaders-bb07152365ee",
   "Comment": "Security headers for the AfricAir static site",
   "SecurityHeadersConfig": {
     "ContentSecurityPolicy": {

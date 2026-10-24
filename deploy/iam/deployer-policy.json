@@ -5,7 +5,7 @@
       "Sid": "ListAfricAirSiteBucket",
       "Effect": "Allow",
       "Action": "s3:ListBucket",
-      "Resource": "arn:aws:s3:::africair-static-204685625557"
+      "Resource": "arn:aws:s3:::africair-live-web-bb07152365ee"
     },
     {
       "Sid": "PublishAfricAirSiteObjects",
@@ -14,13 +14,21 @@
         "s3:PutObject",
         "s3:DeleteObject"
       ],
-      "Resource": "arn:aws:s3:::africair-static-204685625557/*"
+      "Resource": "arn:aws:s3:::africair-live-web-bb07152365ee/*"
+    },
+    {
+      "Sid": "UploadAfricAirDeploymentArtifacts",
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject"
+      ],
+      "Resource": "arn:aws:s3:::africair-live-deploy-bb07152365ee/*"
     },
     {
       "Sid": "InvalidateAfricAirCloudFrontDistribution",
       "Effect": "Allow",
       "Action": "cloudfront:CreateInvalidation",
-      "Resource": "arn:aws:cloudfront::204685625557:distribution/E1LCEA19Q51GIK"
+      "Resource": "arn:aws:cloudfront::204685625557:distribution/E1UPIC1HV4OLH8"
     }
   ]
 }
