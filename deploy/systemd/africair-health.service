@@ -1,0 +1,9 @@
+[Unit]
+Description=AfricAir HTTP health check
+After=nginx.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/africair/shared/healthcheck.sh
+User=root
+Group=root

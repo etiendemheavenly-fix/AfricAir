@@ -1,0 +1,26 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ListAfricAirSiteBucket",
+      "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::africair-static-204685625557"
+    },
+    {
+      "Sid": "PublishAfricAirSiteObjects",
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": "arn:aws:s3:::africair-static-204685625557/*"
+    },
+    {
+      "Sid": "InvalidateAfricAirCloudFrontDistribution",
+      "Effect": "Allow",
+      "Action": "cloudfront:CreateInvalidation",
+      "Resource": "arn:aws:cloudfront::204685625557:distribution/E1LCEA19Q51GIK"
+    }
+  ]
+}
